@@ -1,0 +1,182 @@
+# AI智能习惯追踪应用 - 项目信息文档
+
+## 项目总体目标
+开发一个现代化的AI陪伴式习惯追踪Android应用，结合虚拟AI角色和习惯管理功能，通过情感化交互激励用户养成良好习惯。
+
+## 项目架构概述
+
+### 技术栈
+- **前端**: Android原生 + Kotlin + Jetpack Compose + Material Design 3
+- **后端**: Node.js + Express + PostgreSQL + Socket.IO
+- **架构模式**: MVVM + Clean Architecture + Repository Pattern
+- **依赖注入**: Hilt
+- **数据库**: Room (Android) + PostgreSQL (服务器)
+- **网络**: Retrofit + OkHttp
+
+### 项目结构
+```
+android-habit-tracker-main/
+├── app/                           # Android应用主目录
+│   ├── src/main/java/com/example/cur_app/
+│   │   ├── data/                  # 数据层
+│   │   │   ├── database/          # Room数据库
+│   │   │   │   ├── entities/      # 数据实体（15个实体文件）
+│   │   │   │   ├── dao/          # 数据访问对象
+│   │   │   │   └── HabitTrackerDatabase.kt  # 数据库主类
+│   │   │   ├── repository/        # 数据仓库层
+│   │   │   ├── remote/           # 网络服务
+│   │   │   └── local/            # 本地数据管理
+│   │   ├── domain/               # 业务逻辑层
+│   │   │   └── usecase/          # 业务用例
+│   │   ├── presentation/         # 表现层
+│   │   │   ├── screens/          # UI界面（17个主要界面）
+│   │   │   ├── components/       # UI组件
+│   │   │   ├── viewmodel/        # 视图模型
+│   │   │   └── navigation/       # 导航管理
+│   │   ├── di/                   # 依赖注入模块
+│   │   └── utils/               # 工具类
+│   └── build.gradle.kts          # Android构建配置
+└── fwq/                          # 服务器端目录
+    ├── src/                      # 服务器源码
+    │   ├── controllers/          # 控制器层
+    │   ├── routes/              # 路由配置
+    │   ├── middleware/          # 中间件
+    │   └── utils/               # 工具类
+    ├── migrations/              # 数据库迁移
+    ├── seeds/                   # 数据种子
+    └── server.js               # 服务器入口文件
+```
+
+## 核心功能模块分析
+
+### 1. Android应用端 (app/)
+
+#### 1.1 数据层 (data/)
+**主要功能**: 数据持久化、网络请求、本地数据管理
+
+**关键文件**:
+- `HabitTrackerDatabase.kt`: Room数据库主类，管理15个数据实体
+- `entities/`: 包含用户、习惯、AI角色、聊天、成就等15个数据实体
+- `dao/`: 数据访问对象，提供CRUD操作
+- `repository/`: 数据仓库，统一数据访问接口
+- `remote/`: 网络服务，AI API调用和服务器通信
+- `local/`: 本地数据管理，AI角色管理
+
+**调用关系**: 
+- 被domain层的UseCase调用
+- 调用Android Room、Retrofit网络库
+- 为presentation层提供数据源
+
+#### 1.2 业务逻辑层 (domain/)
+**主要功能**: 核心业务逻辑处理
+
+**关键文件**:
+- `usecase/AiUseCase.kt`: AI交互业务逻辑
+- `usecase/CheckInUseCase.kt`: 打卡业务逻辑
+- `usecase/AchievementUseCase.kt`: 成就系统业务逻辑
+
+**调用关系**:
+- 调用data层的Repository
+- 被presentation层的ViewModel调用
+
+#### 1.3 表现层 (presentation/)
+**主要功能**: UI界面展示和用户交互
+
+**关键界面**:
+- `HomeScreen.kt`: 主界面，显示统计信息和快速操作
+- `AiCharacterSelectionScreen.kt`: AI角色选择界面
+- `ChatDetailScreen.kt`: AI聊天界面
+- `AddEditHabitScreen.kt`: 添加/编辑习惯界面
+- `SettingsScreen.kt`: 设置界面
+- `FriendListScreen.kt`: 好友列表界面
+
+**UI组件**:
+- `GradientBackground.kt`: 渐变背景组件
+- `StatCard.kt`: 统计卡片组件
+- `AchievementCard.kt`: 成就展示组件
+- `AiChatBubble.kt`: AI对话气泡组件
+
+**调用关系**:
+- 调用domain层的UseCase
+- 使用Jetpack Compose构建UI
+- 通过ViewModel管理UI状态
+
+#### 1.4 应用入口
+**关键文件**:
+- `HabitTrackerApplication.kt`: 应用主类，使用Hilt依赖注入，初始化数据库和AI角色
+- `MainActivity.kt`: 主Activity，设置Compose UI和导航
+
+### 2. 服务器端 (fwq/)
+
+#### 2.1 服务器核心 
+**主要功能**: API服务、用户认证、数据管理
+
+**关键文件**:
+- `server.js`: 服务器入口，配置Express、Socket.IO、路由
+- `package.json`: 依赖管理，包含Express、PostgreSQL、JWT等
+
+#### 2.2 API路由
+**主要功能**: RESTful API接口
+
+**关键路由**:
+- `routes/auth.js`: 用户认证相关API
+- `routes/users.js`: 用户管理API
+- `routes/friends.js`: 好友系统API
+- `routes/chat.js`: 聊天功能API
+- `routes/aiCharacter.js`: AI角色管理API
+- `routes/habits.js`: 习惯管理API
+- `routes/admin.js`: 管理后台API
+
+#### 2.3 数据库
+**主要功能**: 数据持久化
+
+**关键文件**:
+- `migrations/`: 包含12个数据库迁移文件
+- `seeds/`: 数据种子文件，初始化默认数据
+
+## 主要功能特性
+
+### 1. 习惯管理系统
+- **多类型打卡**: 支持学习、运动、理财三大类型
+- **专注模式**: 内置番茄钟功能
+- **进度追踪**: 详细的统计和可视化
+
+### 2. AI智能助手系统
+- **多角色支持**: 不同性格的AI角色
+- **智能对话**: AI聊天和建议功能
+- **个性化交互**: 根据用户行为调整回复
+
+### 3. 成就系统
+- **等级系统**: 数据库驱动的动态等级配置
+- **经验累计**: 打卡和专注时间自动累计经验
+- **成就展示**: 可视化的成就卡片
+
+### 4. 社交功能
+- **好友系统**: 添加好友、查看进度
+- **聊天功能**: 好友间聊天交流
+- **数据分享**: 成就和进度分享
+
+### 5. 用户系统
+- **认证授权**: JWT token认证
+- **个人资料**: 用户信息管理
+- **数据同步**: 本地与服务器数据同步
+
+## 技术亮点
+
+1. **现代化UI**: 使用Jetpack Compose + Material Design 3
+2. **Clean Architecture**: 分层架构保证代码可维护性
+3. **离线支持**: 本地数据库 + 网络同步
+4. **实时通信**: Socket.IO实现实时聊天
+5. **AI集成**: 支持多种AI模型API
+6. **响应式设计**: 适配不同屏幕尺寸
+
+## 开发状态
+- **基础架构**: 100% 完成
+- **核心功能**: 95% 完成  
+- **AI功能**: 80% 完成
+- **UI/UX**: 70% 完成
+
+## 部署信息
+- **Android端**: 支持Android 7.0+ (API 26+)
+- **服务器端**: Node.js + PostgreSQL，支持Docker部署
+- **网络**: 支持HTTPS，配置CORS和安全头 

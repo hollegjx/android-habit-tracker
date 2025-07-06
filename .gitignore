@@ -1,0 +1,100 @@
+# Android开发相关
+*.iml
+.gradle
+/local.properties
+/.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+*.apk
+*.aab
+*.dex
+*.class
+
+# Gradle相关
+.gradle/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# Kotlin编译相关
+.kotlin/
+*.hprof
+
+# IDE相关
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node.js相关
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 服务器日志和临时文件
+logs/
+*.log
+*.pid
+*.seed
+*.pid.lock
+uploads/
+
+# 数据库文件
+*.sqlite
+*.db
+
+# 压缩文件和备份
+*.tar.gz
+*.zip
+*.rar
+*-backup/
+*.backup
+*_backup.*
+*_old.*
+*_new.*
+*_broken.*
+*_fixed.*
+
+# 临时文件和缓存
+.tmp/
+.cache/
+.temp/
+*.tmp
+*.temp
+
+# 测试和调试文件
+test-*.js
+*-test.*
+*-debug.*
+*-perf-test.*
+
+# 项目特定的临时文件
+fwq-*.tar.gz
+fwq-*/
+explore.exp
+upload.exp
+important.txt
+network_debug.md
+review.md
+task_completion_summary.md
+test_network.kt
+server_update_guide.md
+
+# 部署相关
+deploy_server.sh
+deploy_files/
+check-*.js
+create-*.js

@@ -1,0 +1,81 @@
+{
+  "defaultCheckInItems": [
+    {
+      "type": "STUDY",
+      "title": "英语单词背诵",
+      "description": "每天背诵新单词，提升词汇量",
+      "targetValue": 30,
+      "unit": "分钟",
+      "icon": "📚",
+      "color": "#667EEA",
+      "experienceValue": 30,
+      "isActive": true
+    },
+    {
+      "type": "STUDY", 
+      "title": "编程练习",
+      "description": "坚持每日编程，提高技术水平",
+      "targetValue": 90,
+      "unit": "分钟",
+      "icon": "💻",
+      "color": "#667EEA",
+      "experienceValue": 50,
+      "isActive": true
+    },
+    {
+      "type": "STUDY",
+      "title": "阅读专业书籍", 
+      "description": "每天阅读专业书籍，丰富知识储备",
+      "targetValue": 45,
+      "unit": "分钟",
+      "icon": "📖",
+      "color": "#667EEA",
+      "experienceValue": 40,
+      "isActive": true
+    },
+    {
+      "type": "EXERCISE",
+      "title": "晨跑",
+      "description": "每天早晨跑步锻炼，保持身体健康",
+      "targetValue": 300,
+      "unit": "千卡",
+      "icon": "🏃", 
+      "color": "#FF7043",
+      "experienceValue": 60,
+      "isActive": true
+    },
+    {
+      "type": "EXERCISE",
+      "title": "力量训练",
+      "description": "进行力量训练，增强肌肉力量",
+      "targetValue": 150,
+      "unit": "千卡",
+      "icon": "💪",
+      "color": "#FF7043",
+      "experienceValue": 50,
+      "isActive": true
+    },
+    {
+      "type": "MONEY",
+      "title": "每日储蓄",
+      "description": "每天存一点钱，积少成多",
+      "targetValue": 50,
+      "unit": "元",
+      "icon": "💰",
+      "color": "#43A047",
+      "experienceValue": 25,
+      "isActive": true
+    },
+    {
+      "type": "MONEY",
+      "title": "理财投资",
+      "description": "定期进行理财投资，实现财富增长", 
+      "targetValue": 200,
+      "unit": "元",
+      "icon": "📈",
+      "color": "#43A047",
+      "experienceValue": 35,
+      "isActive": true
+    }
+  ]
+} 

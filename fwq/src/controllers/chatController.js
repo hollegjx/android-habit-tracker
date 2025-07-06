@@ -436,9 +436,9 @@ async function chatWithAI(req, res) {
 // 调用AI API (使用zetatechs API中转)
 async function callAIAPI(model, messages, config) {
   try {
-    // 确保消息格式正确，使用system role而不是developer
+    // 确保消息格式正确，system role需要转换为developer role
     const formattedMessages = messages.map(msg => ({
-      role: msg.role === 'system' ? 'system' : msg.role,
+      role: msg.role === 'system' ? 'developer' : msg.role,
       content: msg.content
     }));
 
@@ -468,7 +468,7 @@ async function callAIAPI(model, messages, config) {
       throw new Error('AI API返回格式错误');
     }
   } catch (error) {
-    console.error('AI API调用错误:', error.response?.data || error.message);
+    console.error('AI API调用错误:', error.response ? error.response.data : error.message);
     
     // 更详细的错误处理
     if (error.response) {
@@ -482,7 +482,7 @@ async function callAIAPI(model, messages, config) {
       } else if (status === 500) {
         throw new Error('AI API服务器错误，请稍后重试');
       } else {
-        throw new Error(`AI API错误: ${errorData?.error?.message || error.message}`);
+        throw new Error(`AI API错误: ${errorData && errorData.error ? errorData.error.message : error.message}`);
       }
     } else if (error.code === 'ECONNABORTED') {
       throw new Error('AI API请求超时，请稍后重试');

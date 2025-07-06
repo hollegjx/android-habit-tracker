@@ -1,4 +1,5 @@
 const db = require('../utils/database');
+const logger = require('../utils/logger');
 
 // 获取系统统计信息
 async function getSystemStats(req, res) {
@@ -61,9 +62,19 @@ async function getSystemStats(req, res) {
 
 // 获取用户列表
 async function getUsers(req, res) {
+  const startTime = Date.now();
+  const adminUser = req.user;
+  
   try {
     const { page = 1, limit = 20, search, role, status } = req.query;
     const offset = (page - 1) * limit;
+
+    logger.info('ADMIN_USERS', '管理员获取用户列表', { 
+      adminId: adminUser ? adminUser.userId : undefined,
+      adminUsername: adminUser ? adminUser.username : undefined,
+      params: { page, limit, search, role, status },
+      requestIP: req.ip
+    });
 
     let query = db('users')
       .select('id', 'uid', 'username', 'email', 'nickname', 'role', 'is_active', 'email_verified', 'last_login_at', 'created_at');
@@ -169,6 +180,75 @@ async function updateUserStatus(req, res) {
     res.status(500).json({
       success: false,
       message: '更新用户状态失败'
+    });
+  }
+}
+
+// 创建用户（管理员权限）
+async function createUser(req, res) {
+  try {
+    const { username, email, password, nickname, role = 'user' } = req.body;
+
+    // 验证必填字段
+    if (!username || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: '用户名、邮箱和密码为必填项'
+      });
+    }
+
+    // 检查用户名是否已存在
+    const existingUser = await db('users')
+      .where('username', username)
+      .orWhere('email', email)
+      .first();
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: '用户名或邮箱已存在'
+      });
+    }
+
+    // 密码加密
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 生成UID
+    const { v4: uuidv4 } = require('uuid');
+    const uid = uuidv4();
+
+    // 插入新用户
+    const [newUser] = await db('users').insert({
+      uid,
+      username,
+      email,
+      password_hash: hashedPassword,
+      nickname: nickname || username,
+      role,
+      is_active: true,
+      is_verified: true,
+      created_at: new Date(),
+      updated_at: new Date()
+    }).returning('*');
+
+    res.status(201).json({
+      success: true,
+      message: '用户创建成功',
+      data: {
+        id: newUser.id,
+        uid: newUser.uid,
+        username: newUser.username,
+        email: newUser.email,
+        nickname: newUser.nickname,
+        role: newUser.role
+      }
+    });
+  } catch (error) {
+    console.error('创建用户错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '创建用户失败'
     });
   }
 }
@@ -552,13 +632,161 @@ async function getUserActivityLogs(req, res) {
   }
 }
 
+// 获取详细系统日志
+async function getDetailedSystemLogs(req, res) {
+  try {
+    const { level, category, search, limit = 100 } = req.query;
+    const adminUser = req.user;
+
+    logger.info('ADMIN_LOGS', '管理员查看详细系统日志', {
+      adminId: adminUser ? adminUser.userId : undefined,
+      params: { level, category, search, limit }
+    });
+
+    let logs;
+    
+    if (search) {
+      logs = logger.searchLogs(search, parseInt(limit));
+    } else if (level) {
+      logs = logger.getLogsByLevel(level, parseInt(limit));
+    } else if (category) {
+      logs = logger.getLogsByCategory(category, parseInt(limit));
+    } else {
+      logs = logger.getRecentLogs(parseInt(limit));
+    }
+
+    const stats = logger.getLogStats();
+
+    res.json({
+      success: true,
+      data: {
+        logs,
+        stats,
+        filters: {
+          level,
+          category,
+          search,
+          limit: parseInt(limit)
+        }
+      }
+    });
+  } catch (error) {
+    logger.error('ADMIN_LOGS', '获取详细系统日志失败', {
+      error: error.message,
+      adminId: req.user ? req.user.userId : undefined
+    });
+    res.status(500).json({
+      success: false,
+      message: '获取系统日志失败'
+    });
+  }
+}
+
+// 清空内存日志
+async function clearMemoryLogs(req, res) {
+  try {
+    const adminUser = req.user;
+    
+    logger.info('ADMIN_LOGS', '管理员清空内存日志', {
+      adminId: adminUser ? adminUser.userId : undefined,
+      adminUsername: adminUser ? adminUser.username : undefined
+    });
+
+    logger.clearMemoryLogs();
+
+    res.json({
+      success: true,
+      message: '内存日志已清空'
+    });
+  } catch (error) {
+    logger.error('ADMIN_LOGS', '清空内存日志失败', {
+      error: error.message,
+      adminId: req.user ? req.user.userId : undefined
+    });
+    res.status(500).json({
+      success: false,
+      message: '清空日志失败'
+    });
+  }
+}
+
+// 获取数据库调试信息
+async function getDatabaseDebugInfo(req, res) {
+  try {
+    const adminUser = req.user;
+    
+    logger.info('ADMIN_DEBUG', '管理员获取数据库调试信息', {
+      adminId: adminUser ? adminUser.userId : undefined
+    });
+
+    // 获取用户表统计
+    const userStats = await db('users')
+      .select(
+        db.raw('COUNT(*) as total_users'),
+        db.raw('COUNT(CASE WHEN is_active = true THEN 1 END) as active_users'),
+        db.raw('MIN(id) as min_id'),
+        db.raw('MAX(id) as max_id'),
+        db.raw('MIN(uid) as min_uid'),
+        db.raw('MAX(uid) as max_uid')
+      )
+      .first();
+
+    // 获取所有用户的UID列表（用于调试）
+    const allUsers = await db('users')
+      .select('id', 'uid', 'username', 'is_active', 'created_at')
+      .orderBy('id')
+      .limit(50);
+
+    // 获取好友关系统计
+    const friendshipStats = await db('friendships')
+      .select(
+        db.raw('COUNT(*) as total_friendships'),
+        db.raw('COUNT(CASE WHEN status = \'accepted\' THEN 1 END) as accepted'),
+        db.raw('COUNT(CASE WHEN status = \'pending\' THEN 1 END) as pending'),
+        db.raw('COUNT(CASE WHEN status = \'declined\' THEN 1 END) as declined')
+      )
+      .first();
+
+    const debugInfo = {
+      userStats,
+      allUsers,
+      friendshipStats,
+      timestamp: new Date().toISOString()
+    };
+
+    logger.debug('ADMIN_DEBUG', '数据库调试信息', debugInfo);
+
+    res.json({
+      success: true,
+      data: debugInfo
+    });
+  } catch (error) {
+    logger.error('ADMIN_DEBUG', '获取数据库调试信息失败', {
+      error: {
+        message: error.message,
+        stack: error.stack
+      },
+      adminId: req.user ? req.user.userId : undefined
+    });
+    res.status(500).json({
+      success: false,
+      message: '获取调试信息失败',
+      error: error.message
+    });
+  }
+}
+
 module.exports = {
   getSystemStats,
   getUsers,
   updateUserStatus,
+  createUser,
   getSystemLogs,
   getUserLoginActivities,
   getFriendRequests,
   getRecentChatMessages,
-  getUserActivityLogs
+  getUserActivityLogs,
+  getDetailedSystemLogs,
+  clearMemoryLogs,
+  getDatabaseDebugInfo
 };

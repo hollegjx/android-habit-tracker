@@ -1,0 +1,91 @@
+<resources>
+    <string name="app_name">AI习惯追踪器</string>
+    
+    <!-- 导航 -->
+    <string name="nav_home">首页</string>
+    <string name="nav_habits">聊天</string>
+    <string name="nav_chat">消息</string>
+    <string name="nav_ai_chat">AI助手</string>
+    <string name="nav_statistics">统计</string>
+    <string name="nav_settings">设置</string>
+    
+    <!-- 通用 -->
+    <string name="add_habit">添加习惯</string>
+    <string name="edit_habit">编辑习惯</string>
+    <string name="back">返回</string>
+    <string name="save">保存</string>
+    <string name="cancel">取消</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+    <string name="search">搜索</string>
+    
+    <!-- 主页 -->
+    <string name="welcome_message">早安！今天也要坚持好习惯哦</string>
+    <string name="today_motivation">每一个小小的进步都值得庆祝</string>
+    <string name="today_progress">今日进度</string>
+    <string name="completed">完成</string>
+    <string name="total">总计</string>
+    <string name="streak">连续</string>
+    <string name="ai_assistant">AI助手</string>
+    <string name="ai_default_suggestion">让我来帮你分析今天的习惯表现吧！</string>
+    <string name="chat_with_ai">与AI聊天</string>
+    <string name="today_habits">今日习惯</string>
+    <string name="no_habits_today">今天没有要完成的习惯</string>
+    
+    <!-- 习惯列表 -->
+    <string name="habit_list">习惯列表</string>
+    <string name="search_habits">搜索习惯</string>
+    <string name="all_categories">所有分类</string>
+    <string name="category">分类</string>
+    <string name="sort_by">排序</string>
+    <string name="sort_by_name">按名称</string>
+    <string name="sort_by_date">按创建时间</string>
+    <string name="sort_by_completion">按完成率</string>
+    <string name="streak_days">连续%d天</string>
+    <string name="completion_rate">完成率%d%%</string>
+    <string name="no_habits_found">未找到相关习惯</string>
+    <string name="no_habits_yet">还没有创建任何习惯</string>
+    <string name="try_different_search">尝试其他搜索词</string>
+    <string name="create_first_habit">创建你的第一个习惯吧</string>
+    
+    <!-- 添加/编辑习惯 -->
+    <string name="basic_info">基本信息</string>
+    <string name="habit_name">习惯名称</string>
+    <string name="habit_name_hint">例如：每天喝8杯水</string>
+    <string name="description_optional">描述（可选）</string>
+    <string name="description_hint">详细描述这个习惯的内容和目标</string>
+    <string name="category_and_icon">分类和图标</string>
+    <string name="habit_color">习惯颜色</string>
+    <string name="frequency">频率</string>
+    <string name="daily">每天</string>
+    <string name="weekly">每周</string>
+    <string name="monthly">每月</string>
+    <string name="target_count">目标次数</string>
+    <string name="reminder_settings">提醒设置</string>
+    <string name="enable_reminder">启用提醒</string>
+    <string name="reminder_time">提醒时间</string>
+    <string name="create_habit">创建习惯</string>
+    <string name="update_habit">更新习惯</string>
+    
+    <!-- 设置 -->
+    <string name="settings">设置</string>
+    <string name="appearance">外观</string>
+    <string name="dark_theme">深色主题</string>
+    <string name="notifications">通知</string>
+    <string name="enable_notifications">启用通知</string>
+    <string name="ai_character">AI角色</string>
+    <string name="data_management">数据管理</string>
+    <string name="export_data">导出数据</string>
+    <string name="import_data">导入数据</string>
+    <string name="clear_all_data">清除所有数据</string>
+    
+    <!-- AI聊天 -->
+    <string name="ai_chat">AI聊天</string>
+    <string name="ai_chat_coming_soon">AI聊天功能即将上线</string>
+    <string name="ai_chat_description">与智能助手对话，获得个性化的习惯建议和鼓励</string>
+    
+    <!-- 统计 -->
+    <string name="statistics">统计</string>
+    <string name="statistics_coming_soon">统计功能即将上线</string>
+    <string name="statistics_description">查看详细的习惯完成统计和趋势分析</string>
+</resources>

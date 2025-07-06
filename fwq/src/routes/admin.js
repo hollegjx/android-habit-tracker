@@ -4,11 +4,15 @@ const {
   getSystemStats,
   getUsers,
   updateUserStatus,
+  createUser,
   getSystemLogs,
   getUserLoginActivities,
   getFriendRequests,
   getRecentChatMessages,
-  getUserActivityLogs
+  getUserActivityLogs,
+  getDetailedSystemLogs,
+  clearMemoryLogs,
+  getDatabaseDebugInfo
 } = require('../controllers/adminController');
 
 const router = express.Router();
@@ -21,6 +25,9 @@ router.get('/stats', getSystemStats);
 
 // 获取用户列表
 router.get('/users', getUsers);
+
+// 创建用户
+router.post('/users', createUser);
 
 // 更新用户状态
 router.put('/users/:userId/status', updateUserStatus);
@@ -39,5 +46,14 @@ router.get('/recent-chat-messages', getRecentChatMessages);
 
 // 获取用户活动日志
 router.get('/user-activity-logs', getUserActivityLogs);
+
+// 获取详细系统日志
+router.get('/detailed-logs', getDetailedSystemLogs);
+
+// 清空内存日志
+router.post('/logs/clear', clearMemoryLogs);
+
+// 获取数据库调试信息
+router.get('/debug/database', getDatabaseDebugInfo);
 
 module.exports = router;

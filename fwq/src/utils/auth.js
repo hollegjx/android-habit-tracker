@@ -27,6 +27,13 @@ async function verifyPassword(password, hash) {
  * 生成JWT访问令牌
  */
 function generateAccessToken(payload) {
+  // 确保payload是对象，JWT_SECRET存在
+  if (!payload || typeof payload !== 'object') {
+    throw new Error('Payload must be a plain object');
+  }
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined');
+  }
   return jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '24h'
   });
@@ -36,6 +43,13 @@ function generateAccessToken(payload) {
  * 生成JWT刷新令牌
  */
 function generateRefreshToken(payload) {
+  // 确保payload是对象，JWT_REFRESH_SECRET存在
+  if (!payload || typeof payload !== 'object') {
+    throw new Error('Payload must be a plain object');
+  }
+  if (!process.env.JWT_REFRESH_SECRET) {
+    throw new Error('JWT_REFRESH_SECRET is not defined');
+  }
   return jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
     expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d'
   });
@@ -63,10 +77,15 @@ function generateVerificationCode(length = 6) {
 }
 
 /**
- * 生成UUID
+ * 生成UUID (兼容Node.js v10)
  */
 function generateUUID() {
-  return crypto.randomUUID();
+  // 为Node.js v10兼容性，使用手动生成UUID
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
 }
 
 module.exports = {
