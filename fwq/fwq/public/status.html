@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务器状态检查</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>服务器状态检查</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function checkServerStatus() {
+            const results = document.getElementById('results');
+            
+            // 检查项目
+            const checks = [
+                { name: 'HTTP Health Check', url: 'http://' + window.location.hostname + '/health' },
+                { name: 'HTTPS Health Check', url: 'https://' + window.location.hostname + '/health' },
+                { name: 'HTTP API Test', url: 'http://' + window.location.hostname + '/api/ai-characters' },
+                { name: 'Direct Port 3000', url: 'http://' + window.location.hostname + ':3000/health' }
+            ];
+            
+            for (const check of checks) {
+                try {
+                    const response = await fetch(check.url);
+                    if (response.ok) {
+                        const data = await response.text();
+                        results.innerHTML += `
+                            <div class="status success">
+                                ✅ ${check.name}: OK
+                                <pre>${data}</pre>
+                            </div>
+                        `;
+                    } else {
+                        results.innerHTML += `
+                            <div class="status warning">
+                                ⚠️ ${check.name}: HTTP ${response.status}
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    results.innerHTML += `
+                        <div class="status error">
+                            ❌ ${check.name}: ${error.message}
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        window.onload = checkServerStatus;
+    </script>
+</body>
+</html>

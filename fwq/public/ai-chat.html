@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI智能聊天助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* 角色选择面板 */
+        .character-panel {
+            width: 300px;
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .character-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .character-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .character-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 5px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .character-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .character-item.active {
+            background: #667eea;
+            color: white;
+            border-color: #5a67d8;
+        }
+
+        .character-avatar {
+            font-size: 40px;
+            margin-right: 15px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .character-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+        }
+
+        .character-info p {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* 聊天区域 */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .current-character {
+            display: flex;
+            align-items: center;
+        }
+
+        .current-character .avatar {
+            font-size: 30px;
+            margin-right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .chat-status {
+            color: #28a745;
+            font-size: 12px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .message.ai .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #dee2e6;
+            margin-left: 50px;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.ai::before {
+            content: '';
+            position: absolute;
+            left: 40px;
+            top: 15px;
+            font-size: 25px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .message-time {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        /* 输入区域 */
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 25px;
+            padding: 10px 20px;
+            border: 1px solid #dee2e6;
+        }
+
+        .input-container:focus-within {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .message-input {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 10px;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            min-height: 20px;
+            max-height: 100px;
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .send-button:hover {
+            transform: scale(1.1);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 加载动画 */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            margin-left: 50px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-dots div {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots div:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots div:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .character-panel {
+                position: absolute;
+                left: -300px;
+                z-index: 1000;
+                height: 100%;
+                transition: left 0.3s ease;
+            }
+
+            .character-panel.active {
+                left: 0;
+            }
+
+            .toggle-panel {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                background: rgba(0,0,0,0.1);
+                border: none;
+                color: #667eea;
+                font-size: 20px;
+                padding: 10px;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- 角色选择面板 -->
+        <div class="character-panel" id="characterPanel">
+            <div class="character-header">
+                <h2>🤖 AI助手角色</h2>
+                <p>选择你的专属AI伙伴</p>
+            </div>
+            <div class="character-list" id="characterList">
+                <!-- 角色列表将动态加载 -->
+            </div>
+        </div>
+
+        <!-- 聊天区域 -->
+        <div class="chat-area">
+            <button class="toggle-panel" onclick="toggleCharacterPanel()">☰</button>
+            
+            <div class="chat-header">
+                <div class="current-character" id="currentCharacter">
+                    <div class="avatar">🤖</div>
+                    <div>
+                        <h3>选择AI助手</h3>
+                        <div class="chat-status">请先选择一个AI角色开始对话</div>
+                    </div>
+                </div>
+                <div>
+                    <button onclick="clearChat()" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">清空对话</button>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai">
+                    <div class="message-content">
+                        <div>👋 欢迎使用AI智能聊天助手！</div>
+                        <div>请从左侧选择一个AI角色开始对话，每个角色都有独特的个性和专业领域。</div>
+                        <div class="message-time">刚刚</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <div class="input-container">
+                    <textarea 
+                        class="message-input" 
+                        id="messageInput" 
+                        placeholder="输入你的消息..."
+                        rows="1"
+                        disabled
+                    ></textarea>
+                    <button class="send-button" id="sendButton" onclick="sendMessage()" disabled>
+                        ➤
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCharacter = null;
+        let conversationHistory = [];
+        let authToken = localStorage.getItem('userToken'); // 用户登录token
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAICharacters();
+            
+            // 回车发送消息
+            document.getElementById('messageInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // 自动调整输入框高度
+            document.getElementById('messageInput').addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        });
+
+        // 加载AI角色列表
+        async function loadAICharacters() {
+            try {
+                const response = await fetch('/api/ai-characters');
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    renderCharacterList(result.data);
+                } else {
+                    showError('加载AI角色失败');
+                }
+            } catch (error) {
+                console.error('加载AI角色错误:', error);
+                showError('网络错误，无法加载AI角色');
+            }
+        }
+
+        // 渲染角色列表
+        function renderCharacterList(characters) {
+            const characterList = document.getElementById('characterList');
+            characterList.innerHTML = '';
+
+            characters.forEach(character => {
+                const characterItem = document.createElement('div');
+                characterItem.className = 'character-item';
+                characterItem.onclick = () => selectCharacter(character);
+                
+                characterItem.innerHTML = `
+                    <div class="character-avatar">${character.avatar_url || '🤖'}</div>
+                    <div class="character-info">
+                        <h3>${character.name}</h3>
+                        <p>${character.description || '智能AI助手'}</p>
+                    </div>
+                `;
+                
+                characterList.appendChild(characterItem);
+            });
+        }
+
+        // 选择角色
+        function selectCharacter(character) {
+            // 更新选中状态
+            document.querySelectorAll('.character-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+
+            currentCharacter = character;
+            
+            // 更新聊天头部
+            const currentCharacterDiv = document.getElementById('currentCharacter');
+            currentCharacterDiv.innerHTML = `
+                <div class="avatar">${character.avatar_url || '🤖'}</div>
+                <div>
+                    <h3>${character.name}</h3>
+                    <div class="chat-status">在线 • 准备对话</div>
+                </div>
+            `;
+
+            // 启用输入
+            document.getElementById('messageInput').disabled = false;
+            document.getElementById('sendButton').disabled = false;
+            document.getElementById('messageInput').placeholder = `与${character.name}对话...`;
+
+            // 清空对话历史
+            conversationHistory = [];
+            
+            // 添加角色介绍消息
+            addMessage('ai', `你好！我是${character.name}。${character.description || '我是你的AI助手，有什么可以帮助你的吗？'}`, character.avatar_url);
+
+            // 移动端关闭角色面板
+            if (window.innerWidth <= 768) {
+                toggleCharacterPanel();
+            }
+        }
+
+        // 发送消息
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message || !currentCharacter) return;
+
+            // 禁用发送按钮
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = true;
+            messageInput.disabled = true;
+
+            // 添加用户消息
+            addMessage('user', message);
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+
+            // 显示加载指示器
+            showTypingIndicator();
+
+            try {
+                // 调用AI API
+                const response = await fetch('/api/chat/ai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+                    },
+                    body: JSON.stringify({
+                        characterId: currentCharacter.character_id,
+                        message: message
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    // 添加AI回复
+                    addMessage('ai', result.data.message, currentCharacter.avatar_url);
+                } else {
+                    throw new Error(result.message || 'AI响应失败');
+                }
+            } catch (error) {
+                console.error('AI聊天错误:', error);
+                addMessage('ai', '抱歉，我现在遇到了一些技术问题，请稍后再试。', '❌');
+            } finally {
+                // 恢复发送按钮
+                hideTypingIndicator();
+                sendButton.disabled = false;
+                messageInput.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        // 添加消息到聊天界面
+        function addMessage(type, content, avatar = null) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+
+            const time = new Date().toLocaleTimeString('zh-CN', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+
+            if (type === 'ai') {
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div>${content}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+                if (avatar) {
+                    messageDiv.style.setProperty('--avatar', `"${avatar}"`);
+                }
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div>${content}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+            }
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // 添加到对话历史
+            conversationHistory.push({ type, content, time });
+        }
+
+        // 显示输入指示器
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <span style="margin-right: 10px;">${currentCharacter?.avatar_url || '🤖'} 正在输入</span>
+                <div class="typing-dots">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 隐藏输入指示器
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // 清空对话
+        function clearChat() {
+            if (confirm('确定要清空当前对话吗？')) {
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = `
+                    <div class="message ai">
+                        <div class="message-content">
+                            <div>对话已清空，可以开始新的对话了！</div>
+                            <div class="message-time">${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                    </div>
+                `;
+                conversationHistory = [];
+            }
+        }
+
+        // 切换角色面板（移动端）
+        function toggleCharacterPanel() {
+            const panel = document.getElementById('characterPanel');
+            panel.classList.toggle('active');
+        }
+
+        // 显示错误消息
+        function showError(message) {
+            const chatMessages = document.getElementById('chatMessages');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            chatMessages.appendChild(errorDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 显示成功消息
+        function showSuccess(message) {
+            const chatMessages = document.getElementById('chatMessages');
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            chatMessages.appendChild(successDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    </script>
+</body>
+</html>
